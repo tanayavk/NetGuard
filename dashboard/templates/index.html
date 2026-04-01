@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NETGUARD · DDoS Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <!-- ░░ SCANLINE OVERLAY ░░ -->
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <!-- ░░ HEADER ░░ -->
+  <header class="hdr">
+    <div class="hdr-left">
+      <span class="logo-mark">◈</span>
+      <span class="logo-text">NETGUARD<span class="logo-sub">SOC</span></span>
+    </div>
+    <div class="hdr-center">
+      <span class="hdr-title">REAL-TIME DDoS DETECTION SYSTEM</span>
+    </div>
+    <div class="hdr-right">
+      <span class="pulse-dot" id="statusDot"></span>
+      <span class="status-label" id="statusLabel">CONNECTING…</span>
+      <span class="clock" id="clock">--:--:--</span>
+    </div>
+  </header>
+
+  <!-- ░░ TOP STATS ░░ -->
+  <section class="stats-row">
+    <div class="stat-card" id="sc-total">
+      <div class="sc-icon">⬡</div>
+      <div class="sc-body">
+        <div class="sc-value" id="statTotal">0</div>
+        <div class="sc-label">TOTAL PACKETS</div>
+      </div>
+    </div>
+    <div class="stat-card" id="sc-ips">
+      <div class="sc-icon">◎</div>
+      <div class="sc-body">
+        <div class="sc-value" id="statIPs">0</div>
+        <div class="sc-label">ACTIVE IPs</div>
+      </div>
+    </div>
+    <div class="stat-card danger" id="sc-high">
+      <div class="sc-icon">⚠</div>
+      <div class="sc-body">
+        <div class="sc-value" id="statHigh">0</div>
+        <div class="sc-label">HIGH RISK THREATS</div>
+      </div>
+    </div>
+    <div class="stat-card warn" id="sc-peak">
+      <div class="sc-icon">▲</div>
+      <div class="sc-body">
+        <div class="sc-value" id="statPeak">0</div>
+        <div class="sc-label">PEAK PACKETS / IP</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ MAIN GRID ░░ -->
+  <main class="grid">
+
+    <!-- LEFT COL: table + charts -->
+    <div class="col-left">
+
+      <!-- Traffic Table -->
+      <div class="panel">
+        <div class="panel-hdr">
+          <span class="panel-title">◤ LIVE TRAFFIC MATRIX</span>
+          <span class="badge" id="ipCount">0 IPs</span>
+        </div>
+        <div class="table-wrap">
+          <table id="trafficTable">
+            <thead>
+              <tr>
+                <th>IP ADDRESS</th>
+                <th>PACKETS</th>
+                <th>RISK</th>
+                <th>COUNTRY</th>
+                <th>ANOMALY</th>
+                <th>ACTION</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <tr><td colspan="6" class="empty-state">Awaiting data stream…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div class="charts-row">
+        <div class="panel chart-panel">
+          <div class="panel-hdr">
+            <span class="panel-title">◤ TRAFFIC TREND</span>
+          </div>
+          <canvas id="lineChart"></canvas>
+        </div>
+        <div class="panel chart-panel">
+          <div class="panel-hdr">
+            <span class="panel-title">◤ PACKETS PER IP</span>
+          </div>
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+
+    </div><!-- /col-left -->
+
+    <!-- RIGHT COL: alerts + blocked -->
+    <div class="col-right">
+
+      <!-- Alert Feed -->
+      <div class="panel alerts-panel">
+        <div class="panel-hdr">
+          <span class="panel-title">◤ THREAT ALERTS</span>
+          <span class="badge danger" id="alertCount">0</span>
+        </div>
+        <ul class="alert-feed" id="alertFeed">
+          <li class="alert-placeholder">No threats detected…</li>
+        </ul>
+      </div>
+
+      <!-- Blocked IPs -->
+      <div class="panel">
+        <div class="panel-hdr">
+          <span class="panel-title">◤ BLOCKED IPs</span>
+          <span class="badge muted" id="blockedCount">0</span>
+        </div>
+        <ul class="blocked-list" id="blockedList">
+          <li class="alert-placeholder">No IPs blocked…</li>
+        </ul>
+      </div>
+
+      <!-- Anomaly Score Legend -->
+      <div class="panel legend-panel">
+        <div class="panel-hdr">
+          <span class="panel-title">◤ RISK LEGEND</span>
+        </div>
+        <div class="legend-rows">
+          <div class="legend-row">
+            <span class="risk-badge low">LOW</span>
+            <span class="legend-desc">Packets &lt; 2 000</span>
+          </div>
+          <div class="legend-row">
+            <span class="risk-badge medium">MEDIUM</span>
+            <span class="legend-desc">2 000 – 5 000 packets</span>
+          </div>
+          <div class="legend-row">
+            <span class="risk-badge high">HIGH</span>
+            <span class="legend-desc">Packets &gt; 5 000</span>
+          </div>
+          <div class="legend-row">
+            <span class="legend-score-bar">
+              <span class="score-fill" style="width:80%"></span>
+            </span>
+            <span class="legend-desc">Anomaly Score (0 → 1)</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /col-right -->
+
+  </main>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <script src="/static/script.js"></script>
+</body>
+</html>
