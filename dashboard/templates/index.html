@@ -108,9 +108,122 @@
         </div>
       </div>
 
+      <!-- ══════════════════════════════════════════════════
+           ML ENGINE ROW — 3 columns across full width
+           ══════════════════════════════════════════════════ -->
+      <div class="ml-row">
+
+        <!-- ── ADAPTIVE THRESHOLD ── -->
+        <div class="panel ml-panel" id="adaptivePanel">
+          <div class="panel-hdr">
+            <span class="panel-title">◤ ADAPTIVE THRESHOLD</span>
+            <span class="badge ml-badge cyan-badge">STATS</span>
+          </div>
+          <div class="ml-panel-body">
+            <p class="ml-subtitle">mean + <span class="ml-accent">2σ</span> per metric</p>
+
+            <div class="metric-group" id="adaptiveMetrics">
+              <!-- Populated by JS -->
+              <div class="metric-row">
+                <span class="metric-label">PACKETS</span>
+                <div class="metric-track">
+                  <div class="metric-mean-marker" style="left:30%"></div>
+                  <div class="metric-fill" style="width:0%"></div>
+                  <div class="metric-thresh-marker" style="left:70%"></div>
+                </div>
+                <span class="metric-value muted-val">—</span>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label">BYTES</span>
+                <div class="metric-track">
+                  <div class="metric-mean-marker" style="left:30%"></div>
+                  <div class="metric-fill" style="width:0%"></div>
+                  <div class="metric-thresh-marker" style="left:70%"></div>
+                </div>
+                <span class="metric-value muted-val">—</span>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label">ENTROPY</span>
+                <div class="metric-track">
+                  <div class="metric-mean-marker" style="left:50%"></div>
+                  <div class="metric-fill entropy-fill" style="width:0%"></div>
+                  <div class="metric-thresh-marker" style="left:80%"></div>
+                </div>
+                <span class="metric-value muted-val">—</span>
+              </div>
+            </div>
+
+            <!-- Per-IP adaptive risk pills -->
+            <div class="adaptive-ip-list" id="adaptiveIPList">
+              <span class="ml-no-data">No data…</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── ISOLATION FOREST ── -->
+        <div class="panel ml-panel" id="ifPanel">
+          <div class="panel-hdr">
+            <span class="panel-title">◤ ISOLATION FOREST</span>
+            <span class="badge ml-badge green-badge">UNSUPERVISED</span>
+          </div>
+          <div class="ml-panel-body">
+            <p class="ml-subtitle">zero-day anomaly detection</p>
+
+            <!-- Score gauge -->
+            <div class="if-gauge-wrap">
+              <canvas id="ifGaugeChart"></canvas>
+              <div class="if-gauge-label">
+                <span id="ifAnomalyCount" class="if-big-num">0</span>
+                <span class="if-big-sub">ANOMALIES</span>
+              </div>
+            </div>
+
+            <!-- Per-IP Isolation Forest results -->
+            <div class="if-ip-list" id="ifIPList">
+              <span class="ml-no-data">No data…</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── RANDOM FOREST ── -->
+        <div class="panel ml-panel" id="rfPanel">
+          <div class="panel-hdr">
+            <span class="panel-title">◤ RANDOM FOREST</span>
+            <span class="badge ml-badge amber-badge">CLASSIFIER</span>
+          </div>
+          <div class="ml-panel-body">
+            <p class="ml-subtitle">NORMAL vs ATTACK prediction</p>
+
+            <!-- RF summary stats -->
+            <div class="rf-summary">
+              <div class="rf-stat">
+                <span class="rf-stat-val" id="rfAttackCount">0</span>
+                <span class="rf-stat-lbl">ATTACKS</span>
+              </div>
+              <div class="rf-divider"></div>
+              <div class="rf-stat">
+                <span class="rf-stat-val green-val" id="rfNormalCount">0</span>
+                <span class="rf-stat-lbl">NORMAL</span>
+              </div>
+              <div class="rf-divider"></div>
+              <div class="rf-stat">
+                <span class="rf-stat-val muted-val" id="rfNACount">0</span>
+                <span class="rf-stat-lbl">N/A</span>
+              </div>
+            </div>
+
+            <!-- Per-IP RF confidence bars -->
+            <div class="rf-ip-list" id="rfIPList">
+              <span class="ml-no-data">No data…</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /ml-row -->
+
     </div><!-- /col-left -->
 
-    <!-- RIGHT COL: alerts + blocked -->
+    <!-- RIGHT COL: alerts + explainability + blocked + legend -->
     <div class="col-right">
 
       <!-- Alert Feed -->
@@ -124,6 +237,38 @@
         </ul>
       </div>
 
+      <!-- ══════════════════════════════════════════
+           EXPLAINABILITY PANEL — WHY IT WAS FLAGGED
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="explainPanel">
+        <div class="panel-hdr">
+          <span class="panel-title">◤ EXPLAINABILITY · AI REASONING</span>
+          <span class="badge ml-badge cyan-badge" id="explainIPBadge">SELECT IP</span>
+        </div>
+        <div class="explain-body" id="explainBody">
+          <div class="explain-placeholder">
+            <span class="explain-icon">◈</span>
+            <span>Click a row in the traffic table<br>to inspect AI reasoning</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           HYBRID DECISION ENGINE
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="hybridPanel">
+        <div class="panel-hdr">
+          <span class="panel-title">◤ HYBRID DECISION ENGINE</span>
+          <span class="badge ml-badge" id="hybridBadge">OR-GATE</span>
+        </div>
+        <div class="hybrid-body" id="hybridBody">
+          <div class="hybrid-signals" id="hybridSignals">
+            <!-- Populated by JS when a row is selected -->
+            <div class="hybrid-placeholder">Select an IP to inspect signals</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Blocked IPs -->
       <div class="panel">
         <div class="panel-hdr">
@@ -134,30 +279,20 @@
           <li class="alert-placeholder">No IPs blocked…</li>
         </ul>
       </div>
-
-      <!-- Anomaly Score Legend -->
-      <div class="panel legend-panel">
-        <div class="panel-hdr">
-          <span class="panel-title">◤ RISK LEGEND</span>
-        </div>
-        <div class="legend-rows">
+      
+          <!-- ML legend entries -->
+          <div class="legend-divider"></div>
           <div class="legend-row">
-            <span class="risk-badge low">LOW</span>
-            <span class="legend-desc">Packets &lt; 2 000</span>
+            <span class="ml-pill anomaly-pill">ANOMALY</span>
+            <span class="legend-desc">Isolation Forest outlier</span>
           </div>
           <div class="legend-row">
-            <span class="risk-badge medium">MEDIUM</span>
-            <span class="legend-desc">2 000 – 5 000 packets</span>
+            <span class="ml-pill attack-pill">ATTACK</span>
+            <span class="legend-desc">Random Forest prediction</span>
           </div>
           <div class="legend-row">
-            <span class="risk-badge high">HIGH</span>
-            <span class="legend-desc">Packets &gt; 5 000</span>
-          </div>
-          <div class="legend-row">
-            <span class="legend-score-bar">
-              <span class="score-fill" style="width:80%"></span>
-            </span>
-            <span class="legend-desc">Anomaly Score (0 → 1)</span>
+            <span class="ml-pill normal-pill">NORMAL</span>
+            <span class="legend-desc">Both ML models agree safe</span>
           </div>
         </div>
       </div>
